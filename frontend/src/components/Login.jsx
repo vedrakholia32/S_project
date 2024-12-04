@@ -5,6 +5,8 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { useDispatch } from "react-redux"; // Correct import
+import { setAuthUser } from "@/redux/authSlice.jsx";
 
 function Login() {
   const [input, setInput] = useState({
@@ -12,7 +14,9 @@ function Login() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useDispatch(); // Use dispatch correctly
+
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
@@ -33,7 +37,8 @@ const navigate = useNavigate()
       );
 
       if (res.data.success) {
-        navigate("/")
+        dispatch(setAuthUser(res.data.user)); // Correct dispatch usage
+        navigate("/");
         toast.success(res.data.message);
         setInput({
           email: "",
@@ -41,7 +46,10 @@ const navigate = useNavigate()
         });
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      // Safe access to error.response
+      const errorMessage =
+        error.response?.data?.message || "Something went wrong!";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
